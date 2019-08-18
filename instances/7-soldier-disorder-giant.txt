@@ -1,0 +1,1 @@
+{"goal": 0, "obstacles": [0, 6, 2, 3], "robot": 4, "edges": {"0": [1, 5], "1": [2], "2": [3], "3": [4], "4": [], "5": [6], "6": []}, "branchVertexes": [], "name": "7-soldier-disorder-giant"}

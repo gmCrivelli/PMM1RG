@@ -1,0 +1,1 @@
+{"goal": 0, "obstacles": [5, 0, 3, 7, 8, 4], "robot": 6, "edges": {"0": [1, 5], "1": [8, 2], "2": [3], "3": [4], "4": [7], "5": [6], "6": [], "7": [], "8": []}, "branchVertexes": [1], "name": "9-requirement-rice-stuff"}

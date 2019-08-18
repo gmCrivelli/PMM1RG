@@ -1,0 +1,1 @@
+{"goal": 3, "obstacles": [2, 3, 0], "robot": 4, "edges": {"0": [1, 3], "1": [2], "2": [], "3": [4], "4": []}, "branchVertexes": [], "name": "5-fighter-complexity-aim"}
