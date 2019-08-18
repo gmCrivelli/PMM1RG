@@ -529,19 +529,57 @@ class Problem:
         if self.minHoles > availableHoles:
             # Need to use holes from branch
             printStatus('Need to use holes in branch!')
-            obstaclesToRemove = [x for x in self.pathToGoal if self.stateMap[x] == OBSTACLE_TAG]
-            if self.stateMap[sidestepNode] == OBSTACLE_TAG:
-                obstaclesToRemove.append(sidestepNode)
-            distances = [self.distance(sidestepNode,x) for x in obstaclesToRemove]
-            obstaclesWithDistances = list(zip(obstaclesToRemove, distances))
-            obstaclesWithDistances.sort(key=lambda x: x[1])
-            print(obstaclesWithDistances)
             neededHoles = self.minHoles - availableHoles
+
+            # We'll construct an array of obstacles such that obstacles at a smaller index are closer to the sidestep node
+            # This can be done in O(n) time.
+            branchNodeIndex = self.pathToGoal.index(branchNode)
+            tupleNodes = []
+            i = 0
+            for node in self.pathToGoal:
+                tupleNodes.append((node, abs(i - branchNodeIndex)))
+                i += 1
+
+            i = 1
+            nodeCount = len(self.pathToGoal)
+            reorderedNodes = [tupleNodes[branchNodeIndex]]
+            while i < nodeCount:
+                insertedNode = False
+                if branchNodeIndex - i > 0:
+                    reorderedNodes.append(tupleNodes[branchNodeIndex - i])
+                    insertedNode = True
+                if branchNodeIndex + i < nodeCount:
+                    reorderedNodes.append(tupleNodes[branchNodeIndex + i])
+                    insertedNode = True
+                if not insertedNode:
+                    break
+                i += 1
+            
+            reorderedNodes.insert(0, (sidestepNode, 0))
+            obstaclesToRemove = [x for (x,_) in reorderedNodes if self.stateMap[x] == OBSTACLE_TAG]
+
+            print('Filling the branch with the first {0} obstacles in {1}.'.format(neededHoles, str(obstaclesToRemove)))
             count = 0
             while count < neededHoles:
-                nearestObstacle = obstaclesWithDistances.pop(0)
-                self.moveObstacleToHole(nearestObstacle[0], holesBehindSidestep[count])
+                nearestObstacle = obstaclesToRemove.pop(0)
+                nearestHole = holesBehindSidestep.pop(0)
+                self.moveObstacleToHole(nearestObstacle, nearestHole)
                 count += 1
+
+            # The code below is shorter, but because it needs to sort an array, it is O(n log n)
+            # obstaclesToRemove = [x for x in self.pathToGoal if self.stateMap[x] == OBSTACLE_TAG]
+            # if self.stateMap[sidestepNode] == OBSTACLE_TAG:
+            #     obstaclesToRemove.append(sidestepNode)            
+            # distances = [self.distance(sidestepNode,x) for x in obstaclesToRemove]
+
+            # obstaclesWithDistances = list(zip(obstaclesToRemove, distances))
+            # obstaclesWithDistances.sort(key=lambda x: x[1])
+            # print(obstaclesWithDistances)
+            # count = 0
+            # while count < neededHoles:
+            #     nearestObstacle = obstaclesWithDistances.pop(0)
+            #     self.moveObstacleToHole(nearestObstacle[0], holesBehindSidestep[count])
+            #     count += 1
     
     def clearPathFromRobotToNode(self, node, pathToNode):
         # Find obstacles in path to node
@@ -661,18 +699,18 @@ def readInstance(fileName, savingPics):
         print('Solved with cost {0}!'.format(p.totalCost))
         filePathA = 'solutions/' + p.name + '_solution.txt'
         filePathB = 'solutions/solution_' + p.name + '.txt'
-        solution = {'moves':p.moves, 'cost':p.totalCost, 'elapsedTime':elapsedTime, 'solvable':True}
+        solution = {"moves":p.moves, "cost":p.totalCost, "nodes":len(p.graph.nodes), "elapsedTime":elapsedTime, "solvable":True}
     else:
         print('Unsolvable instance :(')
         filePathA = 'solutions/' + p.name + '_unsolvable.txt'
         filePathB = 'solutions/unsolvable_' + p.name + '.txt'
-        solution = {'moves':[], 'cost':-1, 'elapsedTime':elapsedTime, 'solvable':False}
+        solution = {"moves":[], "cost":-1, "nodes":len(p.graph.nodes), "elapsedTime":elapsedTime, "solvable":False}
 
     # Save twice just to sort files more conveniently
     with open(filePathA,mode='w') as f:
-        f.write(str(solution))
+        json.dump(solution, f)
     with open(filePathB,mode='w') as f:
-        f.write(str(solution))
+        json.dump(solution, f)
 
 # Status printer
 def printStatus(text):
