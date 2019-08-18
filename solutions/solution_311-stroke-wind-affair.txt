@@ -1,0 +1,1 @@
+{"elapsedTime": 0.01366114616394043, "solvable": true, "nodes": 311, "moves": [[78, 82, 4], [79, 5, 4]], "cost": 8}
